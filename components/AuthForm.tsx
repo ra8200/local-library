@@ -10,13 +10,12 @@ import {
   UseFormReturn,
   Path,
 } from "react-hook-form";
-import { object, z, ZodType } from "zod";
+import { ZodType } from "zod";
 
 import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -74,7 +73,7 @@ const AuthForm = <T extends FieldValues>({
                   <FormLabel className="capitalize">{FIELD_NAMES[field.name as keyof typeof FIELD_NAMES]}</FormLabel>
                   <FormControl>
                     {field.name === "universityCard" ? (
-                      <ImageUpload />
+                      <ImageUpload  onFileChange={field.onChange}/>
                       ) : (
                         <Input
                           required
