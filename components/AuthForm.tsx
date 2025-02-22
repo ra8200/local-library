@@ -41,6 +41,7 @@ const AuthForm = <T extends FieldValues>({
   onSubmit,
 }: Props<T>) => {
   const router = useRouter();
+
   const isSignIn = type === "SIGN_IN";
 
   const form: UseFormReturn<T> = useForm({
@@ -69,7 +70,6 @@ const AuthForm = <T extends FieldValues>({
     }
   };
 
-  router.push("/");
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-2xl font-semibold text-white">
