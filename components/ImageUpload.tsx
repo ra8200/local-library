@@ -1,6 +1,6 @@
 "use client";
 
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import config from "@/lib/config";
 import { IKImage, ImageKitProvider, IKUpload } from "imagekitio-next";
 import Image from "next/image";
@@ -39,23 +39,16 @@ const ImageUpload = ({
   const ikUploadRef = useRef(null);
   const [file, setFile] = useState<{ filepath: string } | null>(null);
   const onError = (error: any) => {
-    toast({
-      title: "Image uploaded failed.",
-      description: "Your image could not be uploaded. Please try again.",
-      variant: "destructive",
-    });
+    toast.error(
+      "Image uploaded failed. Your image could not be uploaded. Please try again."
+    );
   };
 
   const onSuccess = (res: any) => {
     const filePath = res.filePath || res.url?.replace(urlEndpoint, "");
-
     setFile({ filepath: filePath });
     onFileChange(res.filePath);
-
-    toast({
-      title: "Image uploaded successfully",
-      description: `${res.filePath} uploaded successfully`,
-    });
+    toast("Image uploaded successfully: " + res.filePath);
   };
 
   return (

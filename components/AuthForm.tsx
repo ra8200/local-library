@@ -23,7 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { FIELD_NAMES, FIELD_TYPES } from "@/constants";
 import ImageUpload from "./ImageUpload";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -53,20 +53,16 @@ const AuthForm = <T extends FieldValues>({
     const result = await onSubmit(data);
 
     if (result.success) {
-      toast({
-        title: "Success",
-        description: isSignIn
+      toast(
+        isSignIn
           ? "You have successfully signed in"
-          : "You have successfully signed up",
-      });
-
+          : "You have successfully signed up"
+      );
       router.push("/");
     } else {
-      toast({
-        title: `Error ${isSignIn ? "signing in" : "signing up"}`,
-        description: result.error ?? "An error occurred",
-        variant: "destructive",
-      });
+      toast.error(
+        `${isSignIn ? "Error signing in" : "Error signing up"}: ${result.error ?? "An error occurred"}`
+      );
     }
   };
 
