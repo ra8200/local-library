@@ -8,8 +8,8 @@ import { signIn } from "@/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import ratelimit from "../ratelimit";
-// import { workflowClient } from "@/lib/workflow";
 import config from "@/lib/config";
+import { workflowClient } from "../workflow";
 
 export const signInWithCredentials = async (
   params: Pick<AuthCredentials, "email" | "password">
@@ -17,7 +17,7 @@ export const signInWithCredentials = async (
   const { email, password } = params;
 
   const ip = (await headers()).get("x-forwarded-for") || "127.0.0.1";
-  const { success } = await ratelimit.limit(ip)
+  const { success } = await ratelimit.limit(ip);
 
   if (!success) return redirect("/too-fast");
 
@@ -43,7 +43,7 @@ export const signUp = async (params: AuthCredentials) => {
   const { fullName, email, universityId, universityCard, password } = params;
 
   const ip = (await headers()).get("x-forwarded-for") || "127.0.0.1";
-  const { success } = await ratelimit.limit(ip)
+  const { success } = await ratelimit.limit(ip);
 
   if (!success) return redirect("/too-fast");
 
@@ -67,6 +67,14 @@ export const signUp = async (params: AuthCredentials) => {
       universityId,
       universityCard,
       password: hashedPassword,
+    });
+
+    await workflowClient.trigger({
+      url: `${config.env.prodApiEndpoint}/api/workflow/onboarding`,
+      body: {
+        email,
+        fullName,
+      },
     });
 
     await signInWithCredentials({ email, password });
