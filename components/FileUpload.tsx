@@ -31,16 +31,35 @@ const authenticator = async () => {
   }
 };
 
-const FileUpload = ({
-  onFileChange,
-}: {
+interface Props {
+  type: "image" | "video";
+  accept: string;
+  placeholder: string;
+  folder: string;
+  variant: "dark" | "light";
   onFileChange: (filePath: string) => void;
-}) => {
+}
+
+const FileUpload = ({
+  type,
+  accept,
+  placeholder,
+  variant,
+  onFileChange,
+}: Props) => {
   const ikUploadRef = useRef(null);
   const [file, setFile] = useState<{ filepath: string } | null>(null);
+  const [progress, setProgress] = useState(0);
+
+  const styles = {
+    button: variant === "dark" ? "bg-dark-300" : "bg-light-600 border-gray-100 border",
+    placeholder: variant === "dark" ? "text-light-100" : "text-slate-500",
+    text: variant === "dark" ? "text-light-100" : "text-dark-400"
+  }
+
   const onError = (error: any) => {
     toast.error(
-      "Image uploaded failed. Your image could not be uploaded. Please try again."
+      "File upload failed. Your file could not be uploaded. Please try again."
     );
   };
 
