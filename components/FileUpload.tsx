@@ -31,7 +31,7 @@ const authenticator = async () => {
   }
 };
 
-const ImageUpload = ({
+const FileUpload = ({
   onFileChange,
 }: {
   onFileChange: (filePath: string) => void;
@@ -100,4 +100,4 @@ const ImageUpload = ({
   );
 };
 
-export default ImageUpload;
+export default FileUpload;
