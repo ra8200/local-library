@@ -2,9 +2,10 @@
 
 import { toast } from "sonner";
 import config from "@/lib/config";
-import { IKImage, ImageKitProvider, IKUpload } from "imagekitio-next";
+import { IKImage, ImageKitProvider, IKUpload, IKVideo } from "imagekitio-next";
 import Image from "next/image";
 import { useRef, useState } from "react";
+import { cn } from "@/lib/utils";
 
 const {
   env: {
@@ -38,14 +39,17 @@ interface Props {
   folder: string;
   variant: "dark" | "light";
   onFileChange: (filePath: string) => void;
+  value?: string;
 }
 
 const FileUpload = ({
   type,
   accept,
   placeholder,
+  folder,
   variant,
   onFileChange,
+  value,
 }: Props) => {
   const ikUploadRef = useRef(null);
   const [file, setFile] = useState<{ filepath: string } | null>(null);
@@ -61,16 +65,40 @@ const FileUpload = ({
   };
 
   const onError = (error: any) => {
-    toast.error(
-      "File upload failed. Your file could not be uploaded. Please try again."
-    );
+    console.log(error);
+
+    toast.error(`Your ${type} upload failed`, {
+      description: `Your ${type} could not be uploaded. Please try again.`,
+    });
   };
 
   const onSuccess = (res: any) => {
     const filePath = res.filePath || res.url?.replace(urlEndpoint, "");
+
     setFile({ filepath: filePath });
     onFileChange(res.filePath);
-    toast("Image uploaded successfully: " + res.filePath);
+    toast("File uploaded successfully. " + res.filePath, {
+      description: `${res.filePath} uploaded successfully!`,
+    });
+  };
+
+  const onValidate = (file: File) => {
+    if (type === "image") {
+      if (file.size > 20 * 1024 * 1024) {
+        toast.error("File size too large", {
+          description: "Please upload a file that is less than 20MB.",
+        });
+        return false;
+      }
+    } else if (type === "video") {
+      if (file.size > 50 * 1024 * 1024) {
+        toast.error("File size too large", {
+          description: "Please upload a file that is less than 50MB.",
+        });
+        return false;
+      }
+    }
+    return true;
   };
 
   return (
@@ -84,10 +112,18 @@ const FileUpload = ({
         ref={ikUploadRef}
         onError={onError}
         onSuccess={onSuccess}
-        fileName="test-file.jpg"
+        useUniqueFileName={true}
+        onUploadStart={() => setProgress(0)}
+        onUploadProgress={({ loaded, total }) => {
+          const percent = Math.round((loaded / total) * 100);
+          setProgress(percent);
+        }}
+        folder={folder}
+        accept={accept}
+        validateFile={onValidate}
       />
       <button
-        className="upload-btn"
+        className={cn("upload-btn", styles.button)}
         onClick={(e) => {
           e.preventDefault();
 
@@ -105,19 +141,40 @@ const FileUpload = ({
           className="object-contain"
         />
 
-        <p className="text-base text-light-100">Upload a File</p>
+        <p className={cn("text-base", styles.placeholder)}>{placeholder}</p>
 
-        {file && <p className="upload-filename">{file.filepath}</p>}
+        {file && (
+          <p className={cn("upload-filename", styles.text)}>{file.filepath}</p>
+        )}
+
+        {file && (
+          <p className={cn("upload-filename", styles.text)}>{file.filepath}</p>
+        )}
       </button>
 
-      {file && (
-        <IKImage
-          alt={file.filepath}
-          path={file.filepath}
-          width={500}
-          height={300}
-        />
+      {progress > 0 && (
+        <div className="w-full rounded-full bg-green-200">
+          <div className="progress" style={{ width: `${progress}%` }}>
+            {progress}%
+          </div>
+        </div>
       )}
+
+      {file &&
+        (type === "image" ? (
+          <IKImage
+            alt={file.filepath}
+            path={file.filepath}
+            width={500}
+            height={300}
+          />
+        ) : type === "video" ? (
+          <IKVideo
+            path={file.filepath}
+            controls={true}
+            className="h-96 w-full rounded-xl"
+          />
+        ) : null)}
     </ImageKitProvider>
   );
 };
