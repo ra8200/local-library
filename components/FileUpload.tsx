@@ -52,7 +52,9 @@ const FileUpload = ({
   value,
 }: Props) => {
   const ikUploadRef = useRef(null);
-  const [file, setFile] = useState<{ filepath: string } | null>(null);
+  const [file, setFile] = useState<{ filePath: string | null }>({
+    filePath: value ?? null,
+  });
   const [progress, setProgress] = useState(0);
 
   const styles = {
@@ -75,7 +77,7 @@ const FileUpload = ({
   const onSuccess = (res: any) => {
     const filePath = res.filePath || res.url?.replace(urlEndpoint, "");
 
-    setFile({ filepath: filePath });
+    setFile({ filePath: filePath });
     onFileChange(res.filePath);
     toast("File uploaded successfully. " + res.filePath, {
       description: `${res.filePath} uploaded successfully!`,
@@ -144,15 +146,11 @@ const FileUpload = ({
         <p className={cn("text-base", styles.placeholder)}>{placeholder}</p>
 
         {file && (
-          <p className={cn("upload-filename", styles.text)}>{file.filepath}</p>
-        )}
-
-        {file && (
-          <p className={cn("upload-filename", styles.text)}>{file.filepath}</p>
+          <p className={cn("upload-filename", styles.text)}>{file.filePath}</p>
         )}
       </button>
 
-      {progress > 0 && (
+      {progress > 0 && progress !== 100 && (
         <div className="w-full rounded-full bg-green-200">
           <div className="progress" style={{ width: `${progress}%` }}>
             {progress}%
@@ -163,14 +161,14 @@ const FileUpload = ({
       {file &&
         (type === "image" ? (
           <IKImage
-            alt={file.filepath}
-            path={file.filepath}
+            alt={file.filePath}
+            path={file.filePath}
             width={500}
             height={300}
           />
         ) : type === "video" ? (
           <IKVideo
-            path={file.filepath}
+            path={file.filePath}
             controls={true}
             className="h-96 w-full rounded-xl"
           />
