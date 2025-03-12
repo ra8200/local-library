@@ -52,8 +52,8 @@ const FileUpload = ({
   value,
 }: Props) => {
   const ikUploadRef = useRef(null);
-  const [file, setFile] = useState<{ filePath: string | null }>({
-    filePath: value ?? null,
+  const [file, setFile] = useState<{ filePath: string | undefined }>({
+    filePath: value ?? undefined,
   });
   const [progress, setProgress] = useState(0);
 
@@ -158,7 +158,7 @@ const FileUpload = ({
         </div>
       )}
 
-      {file &&
+      {file.filePath &&
         (type === "image" ? (
           <IKImage
             alt={file.filePath}
